@@ -21,10 +21,10 @@ impl Point {
 
 #[derive(Debug)]
 struct Hitbox {
-    pub xmin: isize,
-    pub xmax: isize,
-    pub ymin: isize,
-    pub ymax: isize,
+    xmin: isize,
+    xmax: isize,
+    ymin: isize,
+    ymax: isize,
 }
 
 impl Hitbox {
@@ -37,7 +37,7 @@ impl Hitbox {
         }
     }
 
-    fn point_within(&self, point: Point) -> bool {
+    fn point_within(&self, point: &Point) -> bool {
         (point.x >= self.xmin) && (point.x <= self.xmax) && (point.y >= self.ymin) &&
         (point.y <= self.ymax)
     }
@@ -96,14 +96,16 @@ lazy_static! {
     static ref PARSED_COUNTRIES: Vec<Country> = parse_countries(&COUNTRY_DATA);
 }
 
+// default board size 1307x875
 #[no_mangle]
-pub extern "C" fn print_parsed() {
+pub extern "C" fn get_country(mousex: c_int, mousey: c_int) -> CString {
+    let mousepoint = Point::new(mousex as isize, mousey as isize);
     for country in PARSED_COUNTRIES.iter() {
-        println!("{:#?}", country);
+        for hitbox in country.hitboxes.iter() {
+            if hitbox.point_within(&mousepoint) {
+                return CString::new(country.name.clone()).unwrap();
+            }
+        }
     }
-}
-
-#[no_mangle]
-pub extern "C" fn get_country(mousex: c_int, mousey: c_int, scrnx: c_int, scrny: c_int) -> CString {
     CString::new("Hello World!").unwrap()
 }
