@@ -5,7 +5,7 @@ rust/racket FFI library to find whether mouse coords are within a country, for u
 
 ### Contributing
 
-Add stuff to ```countrydata.txt``` in the format
+Add stuff to ```src/countrydata.txt``` in the format
 ```
 Country Name
 <rect>
