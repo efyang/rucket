@@ -1,6 +1,10 @@
 #![allow(dead_code)]
 #[macro_use]
 extern crate lazy_static;
+extern crate libc;
+
+use libc::c_int;
+use std::ffi::CString;
 
 const COUNTRY_DATA: &'static str = include_str!("countrydata.txt");
 
@@ -15,11 +19,12 @@ impl Point {
     }
 }
 
+#[derive(Debug)]
 struct Hitbox {
-    xmin: isize,
-    xmax: isize,
-    ymin: isize,
-    ymax: isize,
+    pub xmin: isize,
+    pub xmax: isize,
+    pub ymin: isize,
+    pub ymax: isize,
 }
 
 impl Hitbox {
@@ -38,9 +43,10 @@ impl Hitbox {
     }
 }
 
+#[derive(Debug)]
 struct Country {
-    name: String,
-    hitboxes: Vec<Hitbox>,
+    pub name: String,
+    pub hitboxes: Vec<Hitbox>,
 }
 
 impl Country {
@@ -60,20 +66,22 @@ fn parse_countries(data: &str) -> Vec<Country> {
     let mut countries = Vec::new();
     let mut current_country = Country::new("");
     for line in data.split("\n") {
-        let vars = line.split(" ")
-                       .map(|s| s.to_string())
-                       .collect::<Vec<String>>();
-        if vars[0].parse::<isize>().is_err() {
-            // country name, add previous country to countries
-            countries.push(current_country);
-            current_country = Country::new(line);
-        } else {
-            // hitbox for current country
-            let ireps = vars.iter()
-                            .map(|s| s.parse::<isize>().unwrap())
-                            .collect::<Vec<isize>>();
-            let hb = Hitbox::new(ireps[0], ireps[1], ireps[2], ireps[3]);
-            current_country.add_hitbox(hb);
+        if line != "" {
+            let vars = line.split(" ")
+                           .map(|s| s.to_string())
+                           .collect::<Vec<String>>();
+            if vars[0].parse::<isize>().is_err() {
+                // country name, add previous country to countries
+                countries.push(current_country);
+                current_country = Country::new(line);
+            } else {
+                // hitbox for current country
+                let ireps = vars.iter()
+                                .map(|s| s.parse::<isize>().unwrap())
+                                .collect::<Vec<isize>>();
+                let hb = Hitbox::new(ireps[0], ireps[1], ireps[2], ireps[3]);
+                current_country.add_hitbox(hb);
+            }
         }
     }
     countries.push(current_country);
@@ -84,9 +92,18 @@ fn parse_countries(data: &str) -> Vec<Country> {
 // parse the countries into Vec<Country>
 
 lazy_static! {
+    #[derive(Debug)]
     static ref PARSED_COUNTRIES: Vec<Country> = parse_countries(&COUNTRY_DATA);
 }
 
-// provide list of all countries
-// #[no_mangle]
-// pub extern "C" fn
+#[no_mangle]
+pub extern "C" fn print_parsed() {
+    for country in PARSED_COUNTRIES.iter() {
+        println!("{:#?}", country);
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn get_country(mousex: c_int, mousey: c_int, scrnx: c_int, scrny: c_int) -> CString {
+    CString::new("Hello World!").unwrap()
+}
