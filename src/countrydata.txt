@@ -1,0 +1,5 @@
+Alaska
+20 30 70 80
+22 25 65 85
+Northwest Territory
+30 40 70 80
