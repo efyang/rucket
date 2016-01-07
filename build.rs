@@ -5,6 +5,7 @@ use std::io::{Read, Write};
 
 const RKT_FNAME: &'static str = "rust_functions.rkt";
 const COUNTRY_DATA: &'static str = "countrydata.txt";
+const LIB_BASE: &'static str = "base.rs";
 
 fn parse_countries(data: &str) -> Vec<Country> {
     let mut countries = Vec::new();
@@ -62,95 +63,31 @@ fn main() {
     let rkt_src_path = src_dir.join(RKT_FNAME);
     let rkt_out_path = target_dir.join(RKT_FNAME);
     copy(rkt_src_path, rkt_out_path).expect(&format!("Failed to copy {}", RKT_FNAME));
+
+    let lib_base_path = src_dir.join(LIB_BASE);
+    let mut lib_base_file = File::open(lib_base_path)
+                                .expect("Failed to open base lib file to read.");
+    let mut lib_base = String::new();
+    lib_base_file.read_to_string(&mut lib_base).expect("Failed to read base lib file.");
+
     let country_data_path = src_dir.join(COUNTRY_DATA);
     let mut country_data_file = File::open(country_data_path)
                                     .expect("Failed to open country data file to read.");
     let mut country_data_raw = String::new();
     country_data_file.read_to_string(&mut country_data_raw)
                      .expect("Failed to read raw country data.");
+    drop(country_data_file);
     let country_data = parse_countries(&country_data_raw);
+
     let main_lib_path = src_dir.join("lib.rs");
     let mut main_lib_file = File::create(main_lib_path)
                                 .expect("Failed to open main lib file to write.");
-    main_lib_file.write_all([LIB_NOGEN, &generate_declarations(&country_data) as &str]
+    main_lib_file.write_all([&lib_base as &str, &generate_declarations(&country_data) as &str]
                                 .join("\n")
                                 .as_bytes())
                  .expect("Failed to write genned code.");
+    drop(main_lib_file);
 }
-
-const LIB_NOGEN: &'static str = "extern crate libc;
-
-use libc::c_int;
-use std::ffi::CString;
-
-\
-                                 #[no_mangle]
-pub extern \"C\" fn print_countries() {
-    \
-                                 println!(\"{:#?}\", PARSED_COUNTRIES);
-}
-
-#[no_mangle]
-pub \
-                                 extern \"C\" fn get_country(mousex: c_int, mousey: c_int) -> \
-                                 CString {
-    let mousepoint = Point::new(mousex as isize, \
-                                 mousey as isize);
-    for country in PARSED_COUNTRIES.iter() {
-        \
-                                 for hitbox in country.hitboxes.iter() {
-            if \
-                                 hitbox.point_within(&mousepoint) {
-                return \
-                                 CString::new(country.name.clone()).unwrap();
-            }
-        \
-                                 }
-    }
-    CString::new(\"No Country Found\").unwrap()
-}
-
-impl \
-                                 Point {
-    fn new(x: isize, y: isize) -> Point {
-        Point \
-                                 { x: x, y: y }
-    }
-}
-
-struct Point {
-    pub x: isize,
-    pub \
-                                 y: isize,
-}
-
-#[derive(Debug)]
-struct Hitbox {
-    xmin: isize,
-    \
-                                 xmax: isize,
-    ymin: isize,
-    ymax: isize,
-}
-
-impl Hitbox {
-    \
-                                 fn point_within(&self, point: &Point) -> bool {
-        (point.x \
-                                 >= self.xmin) && (point.x <= self.xmax) && (point.y >= \
-                                 self.ymin) &&
-        (point.y <= self.ymax)
-    }
-}
-
-\
-                                 #[derive(Debug)]
-struct Country<'a> {
-    pub name: &'a str,
-    \
-                                 pub hitboxes: &'a [Hitbox],
-}
-";
 
 #[derive(Debug)]
 struct Hitbox {
