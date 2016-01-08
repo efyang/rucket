@@ -3,6 +3,8 @@ use std::fs::{File, copy};
 use std::env;
 use std::io::{Read, Write};
 
+const BOARDW: i32 = 1307;
+const BOARDH: i32 = 875;
 const RKT_FNAME: &'static str = "rust_functions.rkt";
 const COUNTRY_DATA: &'static str = "countrydata.txt";
 const LIB_BASE: &'static str = "base.rs";
@@ -24,7 +26,11 @@ fn parse_countries(data: &str) -> Vec<Country> {
                 let ireps = vars.iter()
                                 .map(|s| s.parse::<isize>().unwrap())
                                 .collect::<Vec<isize>>();
-                let hb = Hitbox::new(ireps[0], ireps[1], ireps[2], ireps[3]);
+                // find out racket coord system
+                let hb = Hitbox::new(BOARDW - ireps[0],
+                                     BOARDW - ireps[0] + ireps[2],
+                                     BOARDH - ireps[1],
+                                     BOARDH - ireps[1] + ireps[3]);
                 current_country.add_hitbox(hb);
             }
         }

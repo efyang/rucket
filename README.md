@@ -14,13 +14,14 @@ Country Name
 <rect>
 ```
 
-<rect> is defined as ```minx maxx miny maxy``` as in
+<rect> is defined as ```minx miny width height``` as in
+``` minx  
+miny +-----+
+     |     | height
+     +-----+
+      width
 ```
- +-----+ maxy
- |     |
- +-----+ miny
-minx maxx
-```
+(gimp compatible)
 
 Point should be based off of the included ```scaledboard.png```.
 
