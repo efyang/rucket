@@ -26,11 +26,17 @@ fn parse_countries(data: &str) -> Vec<Country> {
                 let ireps = vars.iter()
                                 .map(|s| s.parse::<isize>().unwrap())
                                 .collect::<Vec<isize>>();
-                // find out racket coord system
-                let hb = Hitbox::new(BOARDW - ireps[0],
-                                     BOARDW - ireps[0] + ireps[2],
-                                     BOARDH - ireps[1],
-                                     BOARDH - ireps[1] + ireps[3]);
+                // racket coord system
+                //    --- x ->
+                //   +-----------
+                // | |
+                // y |
+                // ' |
+                //   |
+                let hb = Hitbox::new(ireps[0],
+                                     ireps[0] + ireps[2],
+                                     ireps[1],
+                                     ireps[1] + ireps[3]);
                 current_country.add_hitbox(hb);
             }
         }
