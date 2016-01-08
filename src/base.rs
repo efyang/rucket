@@ -33,8 +33,6 @@ pub extern "C" fn get_country(mousex: c_int, mousey: c_int, xpad: c_int, ypad: c
         // mouse not in board at all
         return CString::new("null").unwrap();
     }
-    drop(xpad);
-    drop(ypad);
     drop(boardbox);
     for country in PARSED_COUNTRIES.iter() {
         for hitbox in country.hitboxes.iter() {
