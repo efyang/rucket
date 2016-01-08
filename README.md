@@ -23,3 +23,5 @@ minx maxx
 ```
 
 Point should be based off of the included ```scaledboard.png```.
+
+Rust code is generated into ```lib.rs``` from ```base.rs``` and the parsed ```countrydata.txt```.
