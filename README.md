@@ -1,6 +1,6 @@
 # rucket
 
-rust/racket FFI library to find whether mouse coords are within a country, for use with Viviose/Risk
+rust/racket FFI library to find whether mouse coords are within a country, for use with [Viviose/Risk](https://github.com/Viviose/Risk)
 
 
 ### Contributing
