@@ -6,6 +6,7 @@ use std::io::{Read, Write};
 const RKT_FNAME: &'static str = "rust_functions.rkt";
 const COUNTRY_DATA: &'static str = "countrydata.txt";
 const LIB_BASE: &'static str = "base.rs";
+const LIB_OUT: &'static str = "rmapcollision.rs";
 
 fn parse_countries(data: &str) -> Vec<Country> {
     let mut countries = Vec::new();
@@ -89,7 +90,7 @@ fn main() {
     drop(country_data_file);
     let country_data = parse_countries(&country_data_raw);
 
-    let main_lib_path = src_dir.join("lib.rs");
+    let main_lib_path = src_dir.join(LIB_OUT);
     let mut main_lib_file = File::create(main_lib_path)
                                 .expect("Failed to open main lib file to write.");
     main_lib_file.write_all([&lib_base as &str, &generate_declarations(&country_data) as &str]
