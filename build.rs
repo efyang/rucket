@@ -3,8 +3,6 @@ use std::fs::{File, copy};
 use std::env;
 use std::io::{Read, Write};
 
-const BOARDW: isize = 1307;
-const BOARDH: isize = 875;
 const RKT_FNAME: &'static str = "rust_functions.rkt";
 const COUNTRY_DATA: &'static str = "countrydata.txt";
 const LIB_BASE: &'static str = "base.rs";
