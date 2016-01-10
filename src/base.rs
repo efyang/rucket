@@ -1,26 +1,53 @@
 extern crate libc;
-extern crate simd;
 
 use libc::c_int;
 use std::ffi::CString;
-use simd::i32x4;
 
 const BOARDW: i32 = 1307;
 const BOARDH: i32 = 875;
+static mut XPAD: i32 = 0;
+static mut YPAD: i32 = 0;
 
 #[no_mangle]
-pub extern "C" fn get_x_pad(scrw: c_int) -> c_int {
-    (scrw - BOARDW)/2
+pub extern "C" fn get_countryliststr() -> CString {
+    let countrystrings = PARSED_COUNTRIES.iter()
+        .map(|c| c.name)
+        .collect::<Vec<&str>>();
+    let countrystring = countrystrings.join("|");
+    CString::new(countrystring).unwrap()
 }
 
 #[no_mangle]
-pub extern "C" fn get_y_pad(scrh: c_int) -> c_int {
-    (scrh - BOARDH)/2
+pub extern "C" fn set_padding(scrw: c_int, scrh: c_int) {
+    unsafe {
+        XPAD = (scrw - BOARDW)/2;
+        YPAD = (scrh - BOARDH)/2;
+    }
 }
 
 #[no_mangle]
-pub extern "C" fn get_country(mousex: c_int, mousey: c_int, xpad: c_int, ypad: c_int) -> CString {
-    let mousepoint = Point::new(mousex, mousey);
+pub extern "C" fn get_x_pad() -> c_int {
+    unsafe {
+        YPAD
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn get_y_pad() -> c_int {
+    unsafe {
+        XPAD
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn get_country(mousex: c_int, mousey: c_int) -> CString {
+    let mousepadx;
+    let mousepady;
+    unsafe {
+        mousepadx = mousex - XPAD;
+        mousepady = mousey - YPAD
+    }
+    let mousepoint = Point::new(mousepadx, mousepady);
     // board hitbox
     // make this math block run once somehow?
     let boardbox = Hitbox {
@@ -29,14 +56,14 @@ pub extern "C" fn get_country(mousex: c_int, mousey: c_int, xpad: c_int, ypad: c
         ymin: 0,
         ymax: BOARDH,
     };
-    if !boardbox.point_within(&mousepoint, xpad, ypad) {
+    if !boardbox.point_within(&mousepoint) {
         // mouse not in board at all
         return CString::new("null").unwrap();
     }
     drop(boardbox);
     for country in PARSED_COUNTRIES.iter() {
         for hitbox in country.hitboxes.iter() {
-            if hitbox.point_within(&mousepoint, xpad, ypad) {
+            if hitbox.point_within(&mousepoint) {
                 return CString::new(country.name.clone()).unwrap();
             }
         }
@@ -63,18 +90,9 @@ struct Hitbox {
 }
 
 impl Hitbox {
-    fn point_within(&self, point: &Point, xpad: i32, ypad: i32) -> bool {
-        // simd for padding
-        let hitboxvec = i32x4::new(self.xmin,
-                                   self.xmax,
-                                   self.ymin,
-                                   self.ymax);
-        let padvec = i32x4::new(xpad, xpad, ypad, ypad);
-        let paddedvec = hitboxvec + padvec;
-        drop(hitboxvec);
-        drop(padvec);
-        (point.x >= paddedvec.extract(0)) && (point.x <= paddedvec.extract(1)) &&
-        (point.y >= paddedvec.extract(2)) && (point.y <= paddedvec.extract(3))
+    fn point_within(&self, point: &Point) -> bool {
+        (point.x >= self.xmin) && (point.x <= self.xmax) &&
+        (point.y >= self.ymin) && (point.y <= self.ymax)
     }
 }
 
