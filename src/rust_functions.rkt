@@ -41,13 +41,3 @@
 ; void -> (list countryname)
 (define (get_country_list)
   (string-split (get_countryliststr) "|"))
-
-
-(define (tests)
-  (set_screen_size 1920 1080)
-  (define-values (xpad ypad) (get_current_board_padding))
-  (println xpad)
-  (println ypad)
-  (println (get_country_list))
-  )
-(tests)

@@ -4,7 +4,8 @@ use libc::c_int;
 use std::ffi::CString;
 
 const BOARDW: i32 = 1307;
-const BOARDH: i32 = 875;
+// 875 + 75 (75 for buttons) = 950
+const BOARDH: i32 = 950;
 static mut XPAD: i32 = 0;
 static mut YPAD: i32 = 0;
 

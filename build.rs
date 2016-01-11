@@ -4,9 +4,53 @@ use std::env;
 use std::io::{Read, Write};
 
 const RKT_FNAME: &'static str = "rust_functions.rkt";
+const RKT_TEST_FNAME: &'static str = "rust_test.rkt";
+const BOARDNAME: &'static str = "scaledboard.png";
 const COUNTRY_DATA: &'static str = "countrydata.txt";
 const LIB_BASE: &'static str = "base.rs";
 const LIB_OUT: &'static str = "rmapcollision.rs";
+
+fn main() {
+    let out_var = env::var("OUT_DIR").unwrap();
+    let out_dir = Path::new(&out_var);
+    let target_dir = out_dir.join("..").join("..").join("..");
+    let manifest_var = env::var("CARGO_MANIFEST_DIR").unwrap();
+    let manifest_dir = Path::new(&manifest_var);
+    let src_dir = manifest_dir.join("src");
+    let rkt_src_path = src_dir.join(RKT_FNAME);
+    let rkt_out_path = target_dir.join(RKT_FNAME);
+    copy(rkt_src_path, rkt_out_path).expect(&format!("Failed to copy {}", RKT_FNAME));
+    let rkt_test_src_path = src_dir.join(RKT_TEST_FNAME);
+    let rkt_test_out_path = target_dir.join(RKT_TEST_FNAME);
+    copy(rkt_test_src_path, rkt_test_out_path)
+        .expect(&format!("Failed to copy {}", RKT_TEST_FNAME));
+    copy(manifest_dir.join(BOARDNAME), target_dir.join(BOARDNAME))
+        .expect(&format!("Failed to copy {}", BOARDNAME));
+
+    let lib_base_path = src_dir.join(LIB_BASE);
+    let mut lib_base_file = File::open(lib_base_path)
+                                .expect("Failed to open base lib file to read.");
+    let mut lib_base = String::new();
+    lib_base_file.read_to_string(&mut lib_base).expect("Failed to read base lib file.");
+
+    let country_data_path = src_dir.join(COUNTRY_DATA);
+    let mut country_data_file = File::open(country_data_path)
+                                    .expect("Failed to open country data file to read.");
+    let mut country_data_raw = String::new();
+    country_data_file.read_to_string(&mut country_data_raw)
+                     .expect("Failed to read raw country data.");
+    drop(country_data_file);
+    let country_data = parse_countries(&country_data_raw);
+
+    let main_lib_path = src_dir.join(LIB_OUT);
+    let mut main_lib_file = File::create(main_lib_path)
+                                .expect("Failed to open main lib file to write.");
+    main_lib_file.write_all([&lib_base as &str, &generate_declarations(&country_data) as &str]
+                                .join("\n")
+                                .as_bytes())
+                 .expect("Failed to write genned code.");
+    drop(main_lib_file);
+}
 
 fn parse_countries(data: &str) -> Vec<Country> {
     let mut countries = Vec::new();
@@ -32,10 +76,7 @@ fn parse_countries(data: &str) -> Vec<Country> {
                 // y |
                 // ' |
                 //   |
-                let hb = Hitbox::new(ireps[0],
-                                     ireps[0] + ireps[2],
-                                     ireps[1],
-                                     ireps[1] + ireps[3]);
+                let hb = Hitbox::new(ireps[0], ireps[0] + ireps[2], ireps[1], ireps[1] + ireps[3]);
                 current_country.add_hitbox(hb);
             }
         }
@@ -62,42 +103,6 @@ fn generate_declarations(country_data: &[Country]) -> String {
     }
     ["static PARSED_COUNTRIES: &'static [Country<'static>] = &[", &countrydecs as &str, "];\n"]
         .join("\n")
-}
-
-fn main() {
-    let out_var = env::var("OUT_DIR").unwrap();
-    let out_dir = Path::new(&out_var);
-    let target_dir = out_dir.join("..").join("..").join("..");
-    let manifest_var = env::var("CARGO_MANIFEST_DIR").unwrap();
-    let manifest_dir = Path::new(&manifest_var);
-    let src_dir = manifest_dir.join("src");
-    let rkt_src_path = src_dir.join(RKT_FNAME);
-    let rkt_out_path = target_dir.join(RKT_FNAME);
-    copy(rkt_src_path, rkt_out_path).expect(&format!("Failed to copy {}", RKT_FNAME));
-
-    let lib_base_path = src_dir.join(LIB_BASE);
-    let mut lib_base_file = File::open(lib_base_path)
-                                .expect("Failed to open base lib file to read.");
-    let mut lib_base = String::new();
-    lib_base_file.read_to_string(&mut lib_base).expect("Failed to read base lib file.");
-
-    let country_data_path = src_dir.join(COUNTRY_DATA);
-    let mut country_data_file = File::open(country_data_path)
-                                    .expect("Failed to open country data file to read.");
-    let mut country_data_raw = String::new();
-    country_data_file.read_to_string(&mut country_data_raw)
-                     .expect("Failed to read raw country data.");
-    drop(country_data_file);
-    let country_data = parse_countries(&country_data_raw);
-
-    let main_lib_path = src_dir.join(LIB_OUT);
-    let mut main_lib_file = File::create(main_lib_path)
-                                .expect("Failed to open main lib file to write.");
-    main_lib_file.write_all([&lib_base as &str, &generate_declarations(&country_data) as &str]
-                                .join("\n")
-                                .as_bytes())
-                 .expect("Failed to write genned code.");
-    drop(main_lib_file);
 }
 
 #[derive(Debug)]
