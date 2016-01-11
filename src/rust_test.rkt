@@ -4,11 +4,11 @@
 
 (define-values (screenw screenh)
   (get-display-size))
-(define board (bitmap "scaledboard.png"))
-(define boardwithbuttons (above board
-                                (overlay (text "Buttons" 36 "black")
-                                       (rectangle screenw 75 "solid" "gray"))))
-(define basecanvas (rectangle screenw screenh "solid" "white"))
+(define board (freeze (bitmap "scaledboard.png")))
+(define boardwithbuttons (freeze (above board
+                                        (overlay (text "Buttons" 36 "black")
+                                                 (rectangle screenw 75 "solid" "gray")))))
+(define basecanvas (freeze (rectangle screenw screenh "solid" "white")))
 (define model (list 0 0))
 (define (mousehandler model x y event)
   (list x y))
