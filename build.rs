@@ -65,7 +65,6 @@ fn parse_countries(data: &str) -> Vec<Country> {
                 countries.push(current_country);
                 current_country = Country::new(line);
             } else {
-                // hitbox for current country
                 let ireps = vars.iter()
                                 .map(|s| s.parse::<isize>().unwrap())
                                 .collect::<Vec<isize>>();
@@ -76,8 +75,8 @@ fn parse_countries(data: &str) -> Vec<Country> {
                 // y |
                 // ' |
                 //   |
-                let hb = Hitbox::new(ireps[0], ireps[0] + ireps[2], ireps[1], ireps[1] + ireps[3]);
-                current_country.add_hitbox(hb);
+                let pt = Point::new(ireps[0], ireps[1]);
+                current_country.add_point(pt);
             }
         }
     }
@@ -90,8 +89,8 @@ fn generate_declaration(country: &Country) -> String {
     ["Country { \n    name: \"",
      &country.name as &str,
      "\",",
-     "\n    hitboxes: &",
-     &format!("{:#?}", &country.hitboxes) as &str,
+     "\n    points: &",
+     &format!("{:#?}", &country.points) as &str,
      "\n}"]
         .join("")
 }
@@ -106,39 +105,32 @@ fn generate_declarations(country_data: &[Country]) -> String {
 }
 
 #[derive(Debug)]
-struct Hitbox {
-    xmin: isize,
-    xmax: isize,
-    ymin: isize,
-    ymax: isize,
+struct Point {
+    x: isize,
+    y: isize,
 }
 
-impl Hitbox {
-    fn new(xmin: isize, xmax: isize, ymin: isize, ymax: isize) -> Hitbox {
-        Hitbox {
-            xmin: xmin,
-            xmax: xmax,
-            ymin: ymin,
-            ymax: ymax,
-        }
+impl Point {
+    fn new(x: isize, y: isize) -> Point {
+        Point { x: x, y: y }
     }
 }
 
 #[derive(Debug)]
 struct Country {
     pub name: String,
-    pub hitboxes: Vec<Hitbox>,
+    pub points: Vec<Point>,
 }
 
 impl Country {
     fn new(name: &str) -> Country {
         Country {
             name: name.to_string(),
-            hitboxes: Vec::new(),
+            points: Vec::new(),
         }
     }
 
-    fn add_hitbox(&mut self, hb: Hitbox) {
-        self.hitboxes.push(hb);
+    fn add_point(&mut self, pt: Point) {
+        self.points.push(pt);
     }
 }

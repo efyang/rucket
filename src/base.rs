@@ -49,24 +49,13 @@ pub extern "C" fn get_country(mousex: c_int, mousey: c_int) -> CString {
         mousepady = mousey - YPAD
     }
     let mousepoint = Point::new(mousepadx, mousepady);
-    // board hitbox
-    // make this math block run once somehow?
-    let boardbox = Hitbox {
-        xmin: 0,
-        xmax: BOARDW,
-        ymin: 0,
-        ymax: BOARDH,
-    };
-    if !boardbox.point_within(&mousepoint) {
+    if (mousepadx < 0) && (mousepadx > BOARDW) && (mousepady < 0) && (mousepadx > BOARDW) {
         // mouse not in board at all
         return CString::new("null").unwrap();
     }
-    drop(boardbox);
     for country in PARSED_COUNTRIES.iter() {
-        for hitbox in country.hitboxes.iter() {
-            if hitbox.point_within(&mousepoint) {
-                return CString::new(country.name.clone()).unwrap();
-            }
+        if country.point_within(&mousepoint) {
+            return CString::new(country.name.clone()).unwrap();
         }
     }
     CString::new("null").unwrap()
@@ -83,21 +72,31 @@ struct Point {
     pub y: i32,
 }
 
-struct Hitbox {
-    xmin: i32,
-    xmax: i32,
-    ymin: i32,
-    ymax: i32,
-}
-
-impl Hitbox {
-    fn point_within(&self, point: &Point) -> bool {
-        (point.x >= self.xmin) && (point.x <= self.xmax) &&
-        (point.y >= self.ymin) && (point.y <= self.ymax)
-    }
-}
-
 struct Country<'a> {
     pub name: &'a str,
-    pub hitboxes: &'a [Hitbox],
+    pub points: &'a [Point],
+}
+
+impl<'a> Country<'a> {
+    pub fn point_within(&self, pt: &Point) -> bool {
+        let nvert = self.points.len();
+        let x = pt.x;
+        let y = pt.y;
+        let mut j = nvert - 1;
+        for i in 0..nvert {
+            let ref ipt = self.points[i];
+            let ref jpt = self.points[j];
+            let xi = ipt.x;
+            let yi = ipt.y;
+            let xj = jpt.x;
+            let yj = jpt.y;
+            let intersect = ((yi > y) != (yj > y)) && (x < ((xj - xi) * (y - yi) / (yj - yi) + xi));
+            if intersect {
+                return intersect;
+            }
+            j = i;
+        }
+        false
+    }
+
 }
