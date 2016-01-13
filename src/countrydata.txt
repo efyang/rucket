@@ -4,12 +4,14 @@ Alaska
 140 162 29 20
 155 182 15 27
 170 188 7 16
+
 Northwest Territory
 152 101 154 61
 306 76 28 85
 334 111 19 29
 235 162 69 4
 189 162 46 2
+
 Greenland
 416 51 111 83
 372 58 44 48
@@ -17,8 +19,10 @@ Greenland
 462 134 34 18
 432 31 78 20
 519 43 15 15
+
 Iceland
 530 153 68 49
+
 Alberta
 169 163 66 25
 177 188 88 59
@@ -27,6 +31,7 @@ Alberta
 235 166 36 22
 265 188 2 42
 267 188 2 20
+
 Ontario
 271 166 30 80
 265 230 6 17
@@ -40,6 +45,7 @@ Ontario
 324 280 15 11
 341 275 6 5
 342 266 16 9
+
 Quebec
 362 189 55 56
 358 199 4 73
@@ -62,6 +68,7 @@ Quebec
 390 250 12 11
 394 261 8 15
 400 267 15 13
+
 Western United States
 172 247 81 97
 253 248 34 62
@@ -73,6 +80,7 @@ Western United States
 227 351 3 3
 237 357 9 3
 235 357 2 2
+
 Eastern United States
 288 247 10 63
 298 254 21 56
@@ -115,6 +123,7 @@ Eastern United States
 396 280 8 5
 393 284 8 7
 402 263 2 4
+
 Central America
 183 344 20 7
 203 348 4 3
@@ -155,6 +164,7 @@ Central America
 275 456 9 3
 274 466 9 3
 278 469 4 5
+
 Venezuela
 275 482 48 19
 300 451 63 31
@@ -199,34 +209,65 @@ Venezuela
 323 496 3 3
 332 496 15 2
 335 498 8 3
+
 Brazil
+
 Peru
+
 Argentina
+
 Scandinavia
+
 Great Britain
+
 Western Europe
+
 Northern Europe
+
 Southern Europe
+
 Ukraine
+
 Ural
+
 Siberia
+
 Yakutsk
+
 Irkutsk
+
 Kamchatka
+
 Mongolia
+
 Japan
+
 Afghanistan
+
 China
+
 Middle East
+
 India
+
 Siam
+
 North Africa
+
 Egypt
+
 East Africa
+
 Congo
+
 South Africa
+
 Madagascar
+
 Indonesia
+
 New Guinea
+
 Western Australia
+
 Eastern Australia
